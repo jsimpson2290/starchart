@@ -332,36 +332,24 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var STAR = '12,1.5 15.2,8.6 23,9.3 17.1,14.5 18.9,22 12,18 5.1,22 6.9,14.5 1,9.3 8.8,8.6';
 
-  var LEVELS = [
-    { id: 'l15', min: 15, mood: 'legend', reward: true, name: 'Legendary Captain!', range: '15', text: 'Pick a weekend activity or dinner, plus one Tier 1 prize.', extras: [] },
-    { id: 'l14', min: 14, mood: 'legend', reward: true, name: 'Brave Knight', range: '14', text: 'Sleep in Mom & Dad\u2019s bed, plus one Tier 1 prize.', extras: [] },
-    { id: 'l13', min: 13, mood: 'knight', reward: true, name: 'Bold Buccaneer', range: '13', text: 'Pick both Tier 1 prizes (or any 12-star choice).', extras: [] },
-    { id: 'l12', min: 12, mood: 'knight', reward: true, name: 'Treasure Hunter', range: '12', text: 'Pick one prize from Tier 1 or Tier 2.', extras: [] },
-    { id: 'l11', min: 11, mood: 'knight', reward: true, name: 'Rising Sailor', range: '11', text: 'Pick one Tier 1 prize.', extras: [] },
-    { id: 'steady', min: 8, mood: 'steady', name: 'Steady Sailor', range: '8\u201310', text: 'No prizes, nothing lost. Aim for more stars tomorrow!', extras: [{ t: 'Nothing earned, nothing lost', k: 'coin' }] },
-    { id: 'rough', min: 5, mood: 'rough', name: 'Rough Seas', range: '5\u20137', text: 'A bumpy day. Some privileges are lost today.', extras: [{ t: 'Lose some iPad time', k: 'skull' }, { t: 'Do 1 extra chore', k: 'skull' }] },
-    { id: 'storm', min: 0, mood: 'storm', name: 'Stormy Day', range: '0\u20134', text: 'A stormy day. Tomorrow we sail again!', extras: [{ t: 'No iPad today', k: 'skull' }, { t: 'Do 2 extra chores', k: 'skull' }] }
+  var TIERS = [
+    { id: 'legend', min: 14, name: 'Legendary Captain!', range: '14\u201315', text: 'Fabulous day! Pick 2 rewards from the tiers you have unlocked.', picks: 2, extras: [] },
+    { id: 'knight', min: 11, name: 'Brave Knight', range: '11\u201313', text: 'Great day! Pick 1 reward from the tiers you have unlocked.', picks: 1, extras: [] },
+    { id: 'steady', min: 8, name: 'Steady Sailor', range: '8\u201310', text: 'No prizes, nothing lost. Aim for more stars tomorrow!', picks: 0, extras: [{ t: 'Nothing earned, nothing lost', k: 'coin' }] },
+    { id: 'rough', min: 5, name: 'Rough Seas', range: '5\u20137', text: 'A bumpy day. Some privileges are lost today.', picks: 0, extras: [{ t: 'Lose some iPad time', k: 'skull' }, { t: 'Do 1 extra chore', k: 'skull' }] },
+    { id: 'storm', min: 0, name: 'Stormy Day', range: '0\u20134', text: 'A stormy day. Tomorrow we sail again!', picks: 0, extras: [{ t: 'No iPad today', k: 'skull' }, { t: 'Do 2 extra chores', k: 'skull' }] }
   ];
-  var ROW_COLORS = { l15: '#FFD966', l14: '#FFE699', l13: '#BFE6CD', l12: '#D3EEDC', l11: '#E4F5EA', steady: '#CFE5F7', rough: '#FFD3B5', storm: '#F7B8B8' };
+  var ROW_COLORS = { legend: '#FFD966', knight: '#BFE6CD', steady: '#CFE5F7', rough: '#FFD3B5', storm: '#F7B8B8' };
 
+  var TIER_MIN = [11, 12, 13, 15];
   var TIER_COLORS = ['#CFE5F7', '#BFE6CD', '#FFD3B5', '#FFD966'];
   var REWARDS = [
-    { id: 'ipad', tier: 1, cat: 'A', need: 11, label: 'Extra iPad time', icon: '<rect x="7" y="5" width="30" height="34" rx="4" fill="#6AA7E8"/><rect x="11" y="9" width="22" height="22" fill="#FFFFFF"/><circle cx="22" cy="35" r="1.8" fill="#FFFFFF"/>' },
-    { id: 'treat', tier: 1, cat: 'A', need: 11, label: 'Extra treat', icon: '<path d="M9 22h26l-3 16H12z" fill="#F2A65A"/><path d="M7 22c0-8 6-12 15-12s15 4 15 12z" fill="#F7B8D0"/><circle cx="22" cy="8" r="3.5" fill="#D93636"/>' },
-    { id: 'bed', tier: 2, cat: 'B', need: 12, label: 'Sleep in Mom & Dad\u2019s bed', icon: '<rect x="4" y="18" width="36" height="13" rx="3" fill="#5CB85C"/><rect x="7" y="10" width="14" height="9" rx="3" fill="#FFFFFF"/><rect x="4" y="30" width="4" height="8" fill="#8A5A33"/><rect x="36" y="30" width="4" height="8" fill="#8A5A33"/>' },
-    { id: 'dinner', tier: 3, cat: 'C', need: 15, label: 'Pick dinner: McDonald\u2019s', icon: '<path d="M7 20c0-8 7-13 15-13s15 5 15 13z" fill="#F2B84B"/><rect x="6" y="23" width="32" height="5" rx="2.5" fill="#8A5A33"/><rect x="6" y="29" width="32" height="4" rx="2" fill="#5CB85C"/><path d="M8 35h28c0 3-3 5-7 5H15c-4 0-7-2-7-5z" fill="#F2B84B"/>' },
-    { id: 'activity', tier: 4, cat: 'C', need: 15, label: 'Pick a weekend activity', icon: '<path d="M9 9 L35 35 M35 9 L9 35" stroke="#D93636" stroke-width="7" stroke-linecap="round"/>' }
+    { id: 'ipad', tier: 1, group: 't1', label: 'Extra iPad time', icon: '<rect x="7" y="5" width="30" height="34" rx="4" fill="#6AA7E8"/><rect x="11" y="9" width="22" height="22" fill="#FFFFFF"/><circle cx="22" cy="35" r="1.8" fill="#FFFFFF"/>' },
+    { id: 'treat', tier: 1, group: 't1', label: 'Extra treat', icon: '<path d="M9 22h26l-3 16H12z" fill="#F2A65A"/><path d="M7 22c0-8 6-12 15-12s15 4 15 12z" fill="#F7B8D0"/><circle cx="22" cy="8" r="3.5" fill="#D93636"/>' },
+    { id: 'bed', tier: 2, label: 'Sleep in Mom & Dad\u2019s bed', icon: '<rect x="4" y="18" width="36" height="13" rx="3" fill="#5CB85C"/><rect x="7" y="10" width="14" height="9" rx="3" fill="#FFFFFF"/><rect x="4" y="30" width="4" height="8" fill="#8A5A33"/><rect x="36" y="30" width="4" height="8" fill="#8A5A33"/>' },
+    { id: 'dinner', tier: 3, label: 'Pick dinner: McDonald\u2019s', icon: '<path d="M7 20c0-8 7-13 15-13s15 5 15 13z" fill="#F2B84B"/><rect x="6" y="23" width="32" height="5" rx="2.5" fill="#8A5A33"/><rect x="6" y="29" width="32" height="4" rx="2" fill="#5CB85C"/><path d="M8 35h28c0 3-3 5-7 5H15c-4 0-7-2-7-5z" fill="#F2B84B"/>' },
+    { id: 'activity', tier: 4, label: 'Pick a fun activity', icon: '<path d="M9 9 L35 35 M35 9 L9 35" stroke="#D93636" stroke-width="7" stroke-linecap="round"/>' }
   ];
-
-  /* Prize rules. Categories: A = Tier 1 (iPad time, treat), B = Tier 2 (bed), C = Tier 3/4 (dinner, weekend activity).
-     Each star count lists the prize combinations allowed; any smaller selection is also fine. */
-  var PATTERNS = {
-    11: [{ A: 1 }],
-    12: [{ A: 1 }, { B: 1 }],
-    13: [{ A: 1 }, { B: 1 }, { A: 2 }],
-    14: [{ A: 1 }, { B: 1 }, { A: 2 }, { A: 1, B: 1 }],
-    15: [{ A: 1 }, { B: 1 }, { A: 2 }, { A: 1, B: 1 }, { A: 1, C: 1 }]
-  };
 
   var KEY = 'pirate-star-chart-v1';
   var NAMEKEY = 'pirate-star-chart-name';
@@ -375,7 +363,7 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
   function defaults() { var a = []; for (var i = 0; i < 15; i++) a.push(i < 10); return a; }
-  function levelFor(n) { for (var i = 0; i < LEVELS.length; i++) if (n >= LEVELS[i].min) return LEVELS[i]; return LEVELS[LEVELS.length - 1]; }
+  function tierFor(n) { for (var i = 0; i < TIERS.length; i++) if (n >= TIERS[i].min) return TIERS[i]; return TIERS[TIERS.length - 1]; }
   function count() { return state.stars.filter(Boolean).length; }
 
   var state = { stars: defaults(), picks: [] };
@@ -460,7 +448,7 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
 
   /* ---------- build ladder ---------- */
   var rowEls = {};
-  LEVELS.forEach(function (t) {
+  TIERS.forEach(function (t) {
     var r = document.createElement('div');
     r.className = 'lrow';
     r.style.setProperty('--rc', ROW_COLORS[t.id]);
@@ -495,16 +483,10 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
   var chestEls = {};
   var BY_ID = {};
   REWARDS.forEach(function (r) { BY_ID[r.id] = r; });
-  function patternsFor(n) { return n < 11 ? [] : PATTERNS[Math.min(n, 15)]; }
-  function tally(ids) { var t = { A: 0, B: 0, C: 0 }; ids.forEach(function (id) { t[BY_ID[id].cat]++; }); return t; }
-  function fitsPattern(t, p) { return t.A <= (p.A || 0) && t.B <= (p.B || 0) && t.C <= (p.C || 0); }
-  function fits(ids, n) { var t = tally(ids); return patternsFor(n).some(function (p) { return fitsPattern(t, p); }); }
-  function picksLeft(n) {
-    var t = tally(state.picks), best = 0;
-    patternsFor(n).forEach(function (p) {
-      if (fitsPattern(t, p)) best = Math.max(best, (p.A || 0) + (p.B || 0) + (p.C || 0) - state.picks.length);
-    });
-    return best;
+  function unlockedTiers(n) { var k = 0; TIER_MIN.forEach(function (m) { if (n >= m) k++; }); return k; }
+  function conflictFor(r) {
+    if (!r.group) return false;
+    return state.picks.some(function (p) { return p !== r.id && BY_ID[p].group === r.group; });
   }
   REWARDS.forEach(function (r, i) {
     var c = document.createElement('button');
@@ -515,10 +497,10 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
     chestsEl.appendChild(c);
     chestEls[r.id] = c;
     c.addEventListener('click', function () {
-      var n = count();
+      var n = count(), allowed = tierFor(n).picks;
       var at = state.picks.indexOf(r.id);
       if (at >= 0) { state.picks.splice(at, 1); }
-      else if (n >= r.need && fits(state.picks.concat([r.id]), n)) {
+      else if (n >= TIER_MIN[r.tier - 1] && state.picks.length < allowed && !conflictFor(r)) {
         state.picks.push(r.id);
         burst(c, ['#FFD84D', '#FFEC99', '#FFFFFF', '#F2B31A'], 10);
         confetti(26);
@@ -528,11 +510,19 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
   });
 
   /* ---------- render ---------- */
-  var prevLevel = null, prevMood = null, prevCount = null;
+  var prevTier = null, prevCount = null;
   function render() {
-    var n = count(), level = levelFor(n);
-    state.picks = state.picks.filter(function (id) { return n >= BY_ID[id].need; });
-    while (state.picks.length && !fits(state.picks, n)) state.picks.pop();
+    var n = count(), tier = tierFor(n), allowed = tier.picks;
+    state.picks = state.picks.filter(function (id) { return n >= TIER_MIN[BY_ID[id].tier - 1]; });
+    var seenG = {};
+    state.picks = state.picks.filter(function (id) {
+      var g = BY_ID[id].group;
+      if (!g) return true;
+      if (seenG[g]) return false;
+      seenG[g] = true;
+      return true;
+    });
+    if (state.picks.length > allowed) state.picks = state.picks.slice(0, allowed);
 
     starEls.forEach(function (el, i) {
       var on = state.stars[i], isStart = i < 10, num = isStart ? i + 1 : i - 9;
@@ -541,22 +531,23 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
         (on ? (isStart ? 'kept. Tap to lose it.' : 'earned. Tap to remove it.') : (isStart ? 'lost. Tap to get it back.' : 'not earned yet. Tap to earn it.')));
     });
 
-    app.setAttribute('data-mood', level.mood);
+    app.setAttribute('data-mood', tier.id);
     if (prevCount !== null && prevCount !== n) flash(cnt, 'bump');
     cnt.textContent = n;
-    if (!prevLevel || prevLevel !== level.id) {
-      rank.textContent = level.name;
+    if (!prevTier || prevTier !== tier.id) {
+      rank.textContent = tier.name;
       flash(rank, 'swap');
     }
-    rankText.textContent = level.text;
+    rankText.textContent = tier.text;
 
-    var left = picksLeft(n);
+    var left = allowed - state.picks.length;
     var items = [];
-    if (level.reward) {
+    if (allowed > 0) {
       items.push({ k: 'coin', t: left > 0 ? (left === 1 ? '1 pick left' : left + ' picks left') + ' \u2013 open a chest below!' : 'All picks chosen. Enjoy your treasure!' });
-      items.push({ k: 'coin', t: n >= 15 ? 'Tiers 1\u20134 unlocked' : n >= 12 ? 'Tiers 1\u20132 unlocked' : 'Tier 1 unlocked' });
+      var kk = unlockedTiers(n);
+      items.push({ k: 'coin', t: kk === 1 ? 'Tier 1 unlocked' : 'Tiers 1\u2013' + kk + ' unlocked' });
     } else {
-      level.extras.forEach(function (x) { items.push(x); });
+      tier.extras.forEach(function (x) { items.push(x); });
     }
     chips.innerHTML = '';
     items.forEach(function (x) {
@@ -567,40 +558,38 @@ h1{font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(23px,6
       chips.appendChild(s);
     });
 
-    LEVELS.forEach(function (t) { rowEls[t.id].classList.toggle('here', t.id === level.id); });
+    TIERS.forEach(function (t) { rowEls[t.id].classList.toggle('here', t.id === tier.id); });
 
     REWARDS.forEach(function (r) {
       var c = chestEls[r.id], picked = state.picks.indexOf(r.id) >= 0;
-      var locked = n < r.need;
-      var allowedNow = !locked && !picked && fits(state.picks.concat([r.id]), n);
-      var dim = !locked && !picked && !allowedNow;
+      var need = TIER_MIN[r.tier - 1];
+      var locked = n < need;
+      var conflict = !picked && conflictFor(r);
+      var dim = !locked && !picked && (left <= 0 || conflict);
       c.classList.toggle('open', picked);
       c.classList.toggle('locked', locked);
       c.classList.toggle('dim', dim);
-      c.classList.toggle('ready', allowedNow);
+      c.classList.toggle('ready', !locked && !picked && !dim);
       c.disabled = locked || dim;
       c.setAttribute('aria-pressed', picked ? 'true' : 'false');
-      var small = picked ? 'Picked!' : locked ? 'Needs ' + r.need + ' stars' : dim ? (left <= 0 ? 'Pick limit reached' : 'Not with your other pick') : 'Unlocked';
+      var small = picked ? 'Picked!' : locked ? 'Needs ' + need + ' stars' : conflict ? 'You picked the other one' : r.group ? 'Pick one: iPad or treat' : 'Unlocked';
       c.querySelector('.tag small').textContent = small;
-      c.setAttribute('aria-label', r.label + ', Tier ' + r.tier + ': ' + (locked ? 'needs ' + r.need + ' stars' : picked ? 'picked, tap to put back' : dim ? (left <= 0 ? 'pick limit reached' : 'not allowed with your other pick') : 'tap to pick'));
+      c.setAttribute('aria-label', r.label + ', Tier ' + r.tier + ': ' + (locked ? 'needs ' + need + ' stars' : picked ? 'picked, tap to put back' : dim ? (conflict ? 'not available, the other Tier 1 reward is picked' : 'pick limit reached') : 'tap to pick'));
     });
-
-    if (!level.reward) {
-      menuNote.textContent = 'The chests are locked today. Tier 1 opens at 11 stars.';
+    var k = unlockedTiers(n);
+    if (allowed === 0) {
+      menuNote.textContent = 'The chests are locked today. Tier 1 opens at ' + TIER_MIN[0] + ' stars, and more tiers unlock as the stars grow.';
     } else {
-      var next = null;
-      LEVELS.slice().reverse().forEach(function (L) { if (L.reward && L.min > n && !next) next = L; });
-      menuNote.textContent = state.picks.length + ' picked so far. ' +
-        (left > 0 ? 'You can still pick ' + left + ' more. ' : 'All picks chosen. ') +
-        'Higher star counts keep every lower choice.' +
-        (next ? ' At ' + next.min + ' stars: ' + next.text : '');
+      menuNote.textContent = 'You can pick ' + allowed + (allowed === 1 ? ' reward' : ' rewards') + ' today (' + state.picks.length + ' of ' + allowed + ' picked). ' +
+        (k > 1 ? 'Tiers 1\u2013' + k + ' are unlocked.' : 'Tier 1 is unlocked.') +
+        (k < TIER_MIN.length ? ' Tier ' + (k + 1) + ' needs ' + TIER_MIN[k] + ' stars.' : '');
     }
 
-    if (prevLevel && prevLevel !== level.id) {
-      live.textContent = n + ' of 15 stars. ' + level.name + ' ' + level.text;
-      if (level.mood === 'legend' && prevMood !== 'legend') confetti(60);
+    if (prevTier && prevTier !== tier.id) {
+      live.textContent = n + ' of 15 stars. ' + tier.name + ' ' + tier.text;
+      if (tier.id === 'legend') confetti(60);
     }
-    prevLevel = level.id; prevMood = level.mood; prevCount = n;
+    prevTier = tier.id; prevCount = n;
     save();
   }
 
